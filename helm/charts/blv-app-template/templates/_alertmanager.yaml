@@ -1,0 +1,51 @@
+{{- define "blv-app-template.alertmanager" -}}
+{{- $blvAppTemplate := dict "Values" (index .Values "blv-app-template") -}}
+{{- $noBlvAppTemplate := omit .Values "blv-app-template" -}}
+{{- $overrides := dict "Values" $noBlvAppTemplate -}}
+{{- $noValues := omit . "Values" -}}
+{{- with merge $noValues $overrides $blvAppTemplate -}}
+{{- if .Values.alertmanager.enabled -}}
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: {{ include "blv-app-template.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "blv-app-template.labels" . | nindent 4 }}
+    alertmanagerconfig: enabled
+spec:
+  route:
+    groupBy: {{ .Values.alertmanager.route.groupBy }}
+    groupWait: {{ .Values.alertmanager.route.groupWait }}
+    groupInterval: {{ .Values.alertmanager.route.groupInterval }}
+    repeatInterval: {{ .Values.alertmanager.route.repeatInterval }}
+    receiver: {{required "När alertmanager är enabled så måste alertmanager.route.defaultReceiver anges!" .Values.alertmanager.route.defaultReceiver }}
+    routes:
+      {{- toYaml .Values.alertmanager.route.routes | nindent 6 }}
+  {{- if .Values.alertmanager.inhibitRules }}
+  inhibitRules:
+      {{- toYaml .Values.alertmanager.inhibitRules | nindent 4 }}
+  {{- end }}
+  receivers:
+  {{- if .Values.alertmanager.receiver.mattermost.enabled }}
+    - name: {{required "När kanal mattermost är enabled så måste alertmanager.receiver.mattermost.name anges!" .Values.alertmanager.receiver.mattermost.name }}
+      slackConfigs:
+          {{- toYaml .Values.alertmanager.receiver.mattermost.slackConfigs | nindent 8 }}
+          channel: {{required "När kanal mattermost är enabled så måste alertmanager.receiver.mattermost.channel anges!" .Values.alertmanager.receiver.mattermost.channel }}
+  {{- end }}    
+  {{- if .Values.alertmanager.receiver.email.enabled }}
+    - name: {{required "När kanal emailt är enabled så måste alertmanager.receiver.email.name anges!" .Values.alertmanager.receiver.email.name }}
+      emailConfigs:
+          {{- toYaml .Values.alertmanager.receiver.email.emailConfigs | nindent 8 }}
+          to: {{required "När kanal email är enabled så måste alertmanager.receiver.email.to anges!" .Values.alertmanager.receiver.email.to }}
+  {{- end }}
+  {{- if .Values.alertmanager.receiver.mute.enabled }}
+    - name: {{required "När kanal mute är enabled så måste alertmanager.receiver.mute.name anges!" .Values.alertmanager.receiver.mute.name }}
+  {{- end }}
+  {{- if .Values.alertmanager.receivers }}
+      {{- toYaml .Values.alertmanager.receivers | nindent 4 }}
+  {{- end }}
+    
+{{- end -}}
+{{- end -}}
+{{- end -}}

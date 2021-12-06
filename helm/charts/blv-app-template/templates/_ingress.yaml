@@ -1,0 +1,66 @@
+{{- define "blv-app-template.ingress" -}}
+{{- $blvAppTemplate := dict "Values" (index .Values "blv-app-template") -}}
+{{- $noBlvAppTemplate := omit .Values "blv-app-template" -}}
+{{- $overrides := dict "Values" $noBlvAppTemplate -}}
+{{- $noValues := omit . "Values" -}}
+{{- with merge $noValues $overrides $blvAppTemplate -}}
+{{- if .Values.ingress.enabled -}}
+{{- $fullName := include "blv-app-template.fullname" . -}}
+{{- $svcPort := .Values.service.port -}}
+{{- $ingressHostSuffix := include "blv-app-template.ingressHostSuffix" . -}}
+{{- $ingressApiVersion := "networking.k8s.io/v1" -}}
+{{- if semverCompare "<1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+{{- $ingressApiVersion = "networking.k8s.io/v1beta1" -}}
+{{- end -}}
+{{- if semverCompare "<1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+{{- $ingressApiVersion = "extensions/v1beta1" -}}
+{{- end }}
+apiVersion: {{ $ingressApiVersion }}
+kind: Ingress	
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "blv-app-template.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.tls }}
+  tls:
+    {{- range .Values.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.ingress.hosts }}
+    - host: {{ if hasKey . "domain" }}
+            {{- printf "%s.%s" .host .domain | trimSuffix "." }}
+            {{- else }}
+            {{- print .host $ingressHostSuffix | trimSuffix "." }}
+            {{- end }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ . }}
+            {{- if eq $ingressApiVersion "networking.k8s.io/v1" }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $svcPort }}
+            {{- else }}
+            backend:
+              serviceName: {{ $fullName }}
+              servicePort: {{ $svcPort }}
+            {{- end }}
+          {{- end }}
+    {{- end }}
+{{- end }}
+{{- end -}}
+{{- end }}

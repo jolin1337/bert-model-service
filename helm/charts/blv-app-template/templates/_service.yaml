@@ -1,0 +1,23 @@
+{{- define "blv-app-template.service" -}}
+{{- $blvAppTemplate := dict "Values" (index .Values "blv-app-template") -}}
+{{- $noBlvAppTemplate := omit .Values "blv-app-template" -}}
+{{- $overrides := dict "Values" $noBlvAppTemplate -}}
+{{- $noValues := omit . "Values" -}}
+{{- with merge $noValues $overrides $blvAppTemplate -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "blv-app-template.fullname" . }}
+  labels:
+    {{- include "blv-app-template.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "blv-app-template.selectorLabels" . | nindent 4 }}
+{{- end -}}
+{{- end -}}

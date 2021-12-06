@@ -1,0 +1,6 @@
+#!/bin/bash
+
+msg="Obama bor i vitahuset, han kommer flytta därifrån om tre dagar"
+http POST http://localhost:8081/tokenize/predict text="$msg"
+http POST http://localhost:8081/part-of-speech/predict text="$msg"
+http POST http://localhost:8081/named-entity-recognition/predict text="$msg"

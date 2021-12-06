@@ -1,0 +1,16 @@
+apiVersion: v2
+name: bert-model-service
+description: BMS - is a service that helps you deploy pods in kubernetes of bert models published in huggingface
+
+type: application
+maintainers:
+- name: Team AI-hubben
+  email: aihubben@bolagsverket.se
+  url: https://confluence.intern.bolagsverket.se/pages/viewpage.action?pageId=15240369
+
+version: 1.0.0
+appVersion: 1.0.0
+dependencies:
+- name: blv-app-template
+  version: 0.9.0
+  repository: "@bolagsverket"

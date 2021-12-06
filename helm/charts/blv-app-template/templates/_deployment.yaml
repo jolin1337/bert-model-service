@@ -1,0 +1,129 @@
+{{- define "blv-app-template.deployment" -}}
+{{- $blvAppTemplate := dict "Values" (index .Values "blv-app-template") -}}
+{{- $noBlvAppTemplate := omit .Values "blv-app-template" -}}
+{{- $overrides := dict "Values" $noBlvAppTemplate -}}
+{{- $noValues := omit . "Values" -}}
+{{- with merge $noValues $overrides $blvAppTemplate -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "blv-app-template.fullname" . }}
+  labels:
+    {{- include "blv-app-template.labels" . | nindent 4 }}
+spec:
+{{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+{{- end }}
+  selector:
+    matchLabels:
+      {{- include "blv-app-template.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:    
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- include "blv-app-template.applicationMetadata" . | nindent 8 }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "blv-app-template.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "blv-app-template.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+          {{- range $key, $value := .Values.extraArgs }}
+            - --{{ $key }}={{ $value }}
+          {{- end }}
+          env:
+          {{- include "blv-app-template.blvEnvs" . | nindent 12 }}
+          {{- if .Values.oracle.tnsnames.enabled }}
+          {{- include "blv-app-template.oracleTnsAdminEnv" . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.ibm.mq.enabled }}
+          {{- include "blv-app-template.mqEnvs" . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.kafka.enabled }}
+          {{- include "blv-app-template.kafkaEnvs" . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.zookeeper.enabled }}
+          {{- include "blv-app-template.zookeeperEnvs" . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.extraEnvs -}}
+            {{ toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.containerPort | default 8080 }}
+              protocol: TCP
+          {{- with .Values.startupProbe }}
+          startupProbe:
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+          {{- if .Values.oracle.tnsnames.enabled }}
+            - name: tnsnames-volume
+              mountPath: {{ .Values.oracle.tnsnames.mountPath }}
+          {{- end }}
+          {{- if .Values.extraVolumeMounts }}
+          {{ toYaml .Values.extraVolumeMounts | nindent 12 }}
+          {{- end }}
+      {{- if .Values.sidecarContainers }}
+      {{- toYaml .Values.sidecarContainers | nindent 8 }}
+      {{- end }}
+      volumes:
+      {{- if .Values.oracle.tnsnames.enabled }}
+        - name: tnsnames-volume
+          configMap:
+            name: {{ .Release.Name }}-blv-oracle-tnsnames
+      {{- end}}
+      {{- if .Values.extraVolumes }}
+      {{ toYaml .Values.extraVolumes | nindent 8}}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.restartPolicy }}
+      restartPolicy: {{ .Values.restartPolicy }}
+      {{- end }}
+      dnsConfig:
+        searches:
+          {{- if eq .Values.blvEnvMode "utv" }}
+          - utv.bolagsverket.se
+          {{- else }}
+          - {{ include "blv-app-template.blvEnvModeNr" . }}.bolagsverket.se
+          {{- end }}
+{{- end -}}
+{{- end -}}

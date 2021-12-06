@@ -1,0 +1,11 @@
+apiVersion: v2
+appVersion: 1.0.0
+description: Mallar anpassade för Bolagsverket
+icon: https://git.intern.bolagsverket.se/int/projects/ST/avatar.png
+maintainers:
+- email: IT-DevTool@bolagsverket.se
+  name: System team
+  url: https://confluence.intern.bolagsverket.se/display/ST/System+Team
+name: blv-app-template
+type: library
+version: 0.9.0

@@ -1,0 +1,10 @@
+FROM python:3.9
+USER 1000
+WORKDIR /src
+
+COPY . /src/
+ENV HOME=/src
+RUN pip install --user pipenv
+RUN python -m pipenv install
+
+CMD ["python", "-m", "pipenv", "run", "/src/bin/start_server"]

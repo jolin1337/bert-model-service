@@ -1,0 +1,294 @@
+# Default values for blv-app-template.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Metadata about the application
+app: {} 
+ # Mandatory metadata
+ #description: "En kort beskrivning av vilen funktionalitet applikationen tillhandahåller"
+ #owner: "Ansvarigt team för applikationen"
+ #documentation: "Länk till dokumentation"
+ #repository: "Länk till git repo"
+ #runbook: "Länk till driftsdokumentation"
+
+ # Recommended metadata
+ #chat: "Teamets kanal i Mattermost"
+ #incidents: "Skulle kunna vara en länk till t.ex. Jira eller EMS"
+ #uptime: "T.ex. en länk till en dashboard i Grafana"
+ #performance: "T.ex. en länk till en dashboard i Grafana"
+ #dependencies: "Länk till systemet för systemöversikt eller en kort beskrivning i textform"
+
+replicaCount: 1
+
+image:
+  repository: 
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+restartPolicy: Always
+# The container port defined below can be referred to by symbolic name 'http'.
+containerPort: 8080
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  # name: ""
+
+podAnnotations: {}
+
+podLabels: {}
+
+podSecurityContext:
+  fsGroup: 2000
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 2000
+  runAsGroup: 2000
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 'http'
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: blv-app-template
+      paths: []
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # No defauls in blv-app-template, this should be defined in the application's values.yaml
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# extraEnvs is extra environment variables to pass to main container
+extraEnvs: {}
+
+# autoscaling not supported by Bolagsverket for now, keep enabled: false
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+startupProbe: {}
+  # Example startup probe for spring actuator. Checks if app is coming live every 3 seconds, gives up after 60 attempts (180 seconds)
+  # App is considered live if 200-399 response from /actuator/health/liveness within 5 seconds.
+  # When app reports itself live för the first time kubernetes switch to liveness/readiness checks. 
+  #httpGet:
+  #  path: /actuator/health/liveness
+  #  port: http
+  #periodSeconds: 3
+  #timeoutSeconds: 5
+  #failureThreshold: 60
+
+livenessProbe: {}
+  # Example liveness probe for spring actuator. This example sets no initialDelaySeconds so use of startupProbe is expected.
+  # Checks liveness every 30 seconds, app is considered live if 200-399 response from /actuator/health/liveness within 5 seconds.
+  # If 3 consecutive liveness checks fails, kubernetes will restart the pod.
+  #httpGet:
+  #  path: /actuator/health/liveness
+  #  port: http
+  #periodSeconds: 10
+  #timeoutSeconds: 5
+  #failureThreshold: 3
+
+readinessProbe: {}
+  # Example readiness probe for spring actuator. This example sets no initialDelaySeconds so use of startupProbe is expected.
+  # Checks readiness every 30 seconds, app is considered ready if 200-399 response from /actuator/health/readiness within 3 seconds.
+  # If 3 consecutive readiness checks fails, kubernetes will stop sending http traffic to the pod.
+  #httpGet:
+  #  path: /actuator/health/readiness
+  #  port: http
+  #periodSeconds: 10
+  #timeoutSeconds: 3
+  #successThreshold: 1
+  #failureThreshold: 3
+
+# extraArgs is extra command argumens when launching the container
+extraArgs: {}
+
+# sidecarContainers to define sidecar containers
+sidecarContainers: {}
+
+# extraVolumeMounts that should be mounted
+extraVolumeMounts: {}
+
+# extraVolumes that should be created
+extraVolumes: {}
+
+configurationFiles: {}
+#  application.propeties: |-
+#    
+#    exampel.property=true
+ 
+# oracle is used to mount tnsnames.ora file and set environment variable TNS_ADMIN.
+# You also need to add a dependency to the helm chart blv-oracle-tnsnames before enabling this feature.  
+oracle:      
+  tnsnames:
+    enabled: false
+    mountPath: "/etc/config/oracle"
+
+# ibm is used to set environment variables containing IBM MQ connection settings.
+ibm:
+  mq:
+    enabled: false     
+    # Override default vaules with: 
+    #connectnames: "override"
+    #queuemanager: "override"
+    #channel: "override"
+    #user: "override"
+    #password: "override"
+
+# zookeeper is used to set environment variables containing Kafka connection settings.
+kafka:
+  enabled: false
+  # Override default values with: 
+  #connectnames: "override"
+
+# kafka is used to set environment variables containing ZooKeeper connection settings.  
+zookeeper:
+  enabled: false
+  # Override default values with: 
+  #connectnames: "override"
+  
+
+# Suffix att lägga till ett hostnamn för att få ett internt kvalificerat FQDN.
+# Testmiljö: -system.system.bolagsverket.se
+# Prod: .prod.bolagsverket.se
+fqdnSuffixInternal: ""
+
+# Suffix att lägga till ett hostnamn för att få ett externt FQDN.
+# Testmiljö: -system.bolagsverket.se
+# Prod: .bolagsverket.se
+fqdnSuffixExternal: ""
+
+# Suffix att lägga till hostnamn i ingress-konfigurationen.
+# Kan overridas av domain i ingress-konfigurationen.
+# Standard är fqdnSuffixInternal eller fqdnSuffixExternal (om ingressHostSuffixExternal=true)
+ingressHostSuffix: ""
+ingressHostSuffixExternal: false
+
+# Default values for podmonitor
+podmonitor:
+  enabled: false
+  podMetricsEndpoints: [] 
+#    - interval: 30s
+#      port: 'http'
+#      path: /
+#      honorLabels: true
+
+# Default values for prometheusrules
+prometheusrule:
+  enabled: false
+  groups: []
+# - name: dokumentvalidering-rules
+#   rules: 
+#      - alert: dokumentvalidering-virusdatabas
+#        annotations:
+#          description: Virusdatabasen i sidercar-container dokumentvalidering-clamav är äldre än 24 timmar.
+#          summary: Applikationens virusdatabas är inte uppdaterad.
+#          runbook_url: https://confluence.intern.bolagsverket.se/pages/viewpage.action?pageId=30728190#id-%C3%85tg%C3%A4rdsbeskrivningdokumentvalidering-005
+#          actionid: dokumentvalidering-005
+#        expr:  clamav_virus_database_age_seconds{namespace="{{ .Release.Namespace }}"} > 86400
+#        for: 3m
+#        labels:
+#          severity: warning
+#          action: drift
+
+
+# Default values for prometheusrules
+alertmanager:
+  enabled: false
+  route:
+    groupBy: "['job', 'alertname', 'service']"
+    # How long to initially wait to send a notification for a group
+    # of alerts. Allows to wait for an inhibiting alert to arrive or collect
+    # more initial alerts for the same group. (Usually ~0s to few minutes.)
+    # default = 30s
+    groupWait: "30s"
+    # How long to wait before sending a notification about new alerts that
+    # are added to a group of alerts for which an initial notification has
+    # already been sent. (Usually ~5m or more.)
+    # default = 5m
+    groupInterval: "5m"
+    # How long to wait before sending a notification again if it has already
+    # been sent successfully for an alert. (Usually ~3h or more).
+    # default = 4h
+    repeatInterval: "4h"
+    # Receiver where alerts not matching any routes/matchers are sent
+#   defaultReceiver: email-alert
+    routes: []
+#      - matchers:
+#        - name: severity
+#          value: warning
+#        - name: action
+#          value: drift
+#        receiver: mattermost-alert
+# Inhibits/mutes targetMatch alerts when alerts matching sourceMatch fires, provided labels in equal also matches
+  inhibitRules: []
+#  - sourceMatch:
+#      - name: severity
+#        value: critical
+#      - name: action
+#        value: drift
+#    targetMatch:
+#      - name: severity
+#        value: warning
+#      - name: action
+#        value: team
+#    equal: ['category']
+# Custom receivers  
+  receivers: []
+# Predefined receivers  
+  receiver: 
+    mattermost:
+#      enabled: true
+#      name: mattermost-alert
+#      channel: "'#team---alerts'"
+      enabled: false
+      slackConfigs: 
+        - sendResolved: true
+          httpConfig:
+            tlsConfig:
+              insecureSkipVerify: true # TODO Ska denna bort, fungerar inte lokalt med denna borttagen
+          title: "{{ template \"bv.mattermost.title\" . }}"
+          text:  "{{ template \"bv.mattermost.text\" . }}"
+          color: "{{ template \"bv.mattermost.color\" . }}"
+    email:
+#      enabled: true
+#      name: email-alert
+#      to: teamdevops@bolagsverket.se
+      enabled: false
+      emailConfigs:
+        - requireTLS: false # TODO Ska denna bort, fungerar inte lokalt med denna borttagen
+          sendResolved: true
+    mute:
+      enabled: false

@@ -1,0 +1,33 @@
+{{- define "blv-app-template.prometheusrule" -}}
+{{- $blvAppTemplate := dict "Values" (index .Values "blv-app-template") -}}
+{{- $noBlvAppTemplate := omit .Values "blv-app-template" -}}
+{{- $overrides := dict "Values" $noBlvAppTemplate -}}
+{{- $noValues := omit . "Values" -}}
+{{- with merge $noValues $overrides $blvAppTemplate -}}
+{{- if .Values.prometheusrule.enabled -}}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "blv-app-template.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "blv-app-template.labels" . | nindent 4 }}
+spec:
+  groups: 
+  {{- range .Values.prometheusrule.groups }} 
+  - name: {{ .name }}
+    rules:
+      {{- range .rules }}
+      - alert: {{ .alert }}
+        annotations:
+          {{- toYaml .annotations | nindent 10 }}
+        expr: {{ tpl (.expr) $ }}
+        for: {{ .for }}
+        labels:
+          {{- toYaml .labels | nindent 10 }}
+      {{- end }}
+  {{- end }}
+    
+{{- end -}}
+{{- end -}}
+{{- end -}}

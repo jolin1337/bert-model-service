@@ -1,0 +1,4 @@
+venv/
+helm/
+assets/
+.vscode/

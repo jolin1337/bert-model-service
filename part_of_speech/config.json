@@ -1,0 +1,7 @@
+{
+    "BERT_TOKENIZER": "KB/bert-base-swedish-cased-pos",
+    "BERT_MODEL": "KB/bert-base-swedish-cased-pos",
+    "PRE_TRAINED_TOKENIZER": "assets/tokenizer_state.bin",
+    "PRE_TRAINED_MODEL": "assets/model_state.bin",
+    "MAX_SEQUENCE_LEN": 160
+}

@@ -1,0 +1,32 @@
+{{- define "blv-app-template.podmonitor" -}}
+{{- $blvAppTemplate := dict "Values" (index .Values "blv-app-template") -}}
+{{- $noBlvAppTemplate := omit .Values "blv-app-template" -}}
+{{- $overrides := dict "Values" $noBlvAppTemplate -}}
+{{- $noValues := omit . "Values" -}}
+{{- with merge $noValues $overrides $blvAppTemplate -}}
+{{- if .Values.podmonitor.enabled -}}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ include "blv-app-template.fullname" . }}
+  labels:
+    {{- include "blv-app-template.labels" . | nindent 4 }}
+spec:
+  podMetricsEndpoints:
+    {{- range .Values.podmonitor.podMetricsEndpoints }}
+    - interval: {{ .interval }}
+      port: {{ .port }}
+      path: {{ .path }}
+      honorLabels: {{ .honorLabels }}
+    {{- end }}
+  selector:
+    matchLabels:
+      # Matcha med följande labels på poden
+      {{- include "blv-app-template.selectorLabels" . | nindent 6 }}
+  namespaceSelector:
+    # Avgränsa podmonitorn till aktuell namespace
+    matchNames:
+      - {{ .Release.Namespace }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
