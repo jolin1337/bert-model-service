@@ -2,3 +2,9 @@ venv/
 helm/
 assets/
 .vscode/
+Jenkinsfile
+*.pyc
+__pycache__/
+.gitignore
+.isort.cfg
+.flake8

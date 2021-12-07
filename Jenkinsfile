@@ -105,11 +105,11 @@ pipeline {
         stage("Sonar Quality Gate") {
             steps {
                 script {
-                    if (cicd_buildstate.useQualityGate) {
-                        timeout(time: 1, unit: 'HOURS') {
-                            waitForQualityGate(abortPipeline: cicd_buildstate.abortIfQualityGateFail)
-                        }
-                    }
+                    // if (cicd_buildstate.useQualityGate) {
+                    //     timeout(time: 1, unit: 'HOURS') {
+                    //         waitForQualityGate(abortPipeline: cicd_buildstate.abortIfQualityGateFail)
+                    //     }
+                    // }
                 }
             }
         }

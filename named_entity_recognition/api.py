@@ -29,7 +29,7 @@ class NamedEntityRecognitionResponse(BaseModel):
 def predict(request: TextRequest, model: Model = Depends(get_model)):
     prediction = model.predict(request.text)
     return NamedEntityRecognitionResponse(
-        entites=[NamedEntityRecognitionEntityResponse(**p) for p in prediction]
+        entities=[NamedEntityRecognitionEntityResponse(**p) for p in prediction]
     )
 
 
