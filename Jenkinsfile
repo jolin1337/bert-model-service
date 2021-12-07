@@ -102,17 +102,17 @@ pipeline {
         }
 
         // Om man vill invänta resultat av analys och eventuellt sätta status på bygget
-        stage("Sonar Quality Gate") {
-            steps {
-                script {
-                    // if (cicd_buildstate.useQualityGate) {
-                    //     timeout(time: 1, unit: 'HOURS') {
-                    //         waitForQualityGate(abortPipeline: cicd_buildstate.abortIfQualityGateFail)
-                    //     }
-                    // }
-                }
-            }
-        }
+        // stage("Sonar Quality Gate") {
+        //     steps {
+        //         script {
+        //             if (cicd_buildstate.useQualityGate) {
+        //                 timeout(time: 1, unit: 'HOURS') {
+        //                     waitForQualityGate(abortPipeline: cicd_buildstate.abortIfQualityGateFail)
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Parallel Trivy and Dockle') {
             failFast true
