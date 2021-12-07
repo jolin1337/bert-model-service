@@ -45,7 +45,7 @@ pipeline {
         // sonarinstance = 'sonar'
 
         // dryrun = false
-        // useQualityGate = true
+        useQualityGate = false
         // abortIfQualityGateFail = true
     }
 
