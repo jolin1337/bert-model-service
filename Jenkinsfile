@@ -3,7 +3,7 @@
 
 pipeline {
     agent {
-        label 'dockle'
+        label 'dockle&&helm'
     }
 
     options { buildDiscarder(logRotator(numToKeepStr: '30')) }
@@ -53,7 +53,7 @@ pipeline {
         stage("Prepare") {
             steps {
                 script {
-                    cicd_buildstate = cicd_prepare()
+                    cicd_buildstate = prepare()
                 }
             }
         }
