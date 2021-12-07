@@ -20,3 +20,7 @@ class TokensResponse(BaseModel):
 def predict(request: TextRequest, model: Model = Depends(get_model)):
     prediction = model.predict(request.text)
     return TokensResponse(tokens=prediction)
+
+
+if __name__ == '__main__':
+    get_model()

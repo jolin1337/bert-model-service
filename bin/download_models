@@ -1,0 +1,7 @@
+#!/bin/python
+
+from api import get_ner_model, get_pos_model, get_tok_model
+
+get_ner_model()
+get_pos_model()
+get_tok_model()

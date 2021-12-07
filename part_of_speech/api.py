@@ -31,3 +31,7 @@ def predict(request: TextRequest, model: Model = Depends(get_model)):
     return PartOfSpeechResponse(
         tokens=[PartOfSpeechEntityResponse(**p) for p in prediction]
     )
+
+
+if __name__ == '__main__':
+    get_model()

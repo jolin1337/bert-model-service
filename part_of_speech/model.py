@@ -25,13 +25,16 @@ class Model:
         return self.pipeline(text)
 
 
-_model = Model()
+_model = None
 
 
 def get_model():
+    global _model
+    if _model is None:
+        _model = Model()
     return _model
 
 
 if __name__ == '__main__':
     model = get_model()
-    print(model.predict('This app is a total waste of time!'))
+    print("Test prediction:", model.predict('This app is a total waste of time!'))

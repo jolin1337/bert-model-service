@@ -6,5 +6,7 @@ COPY . /src/
 ENV HOME=/src
 RUN pip install --user pipenv
 RUN python -m pipenv install
+RUN mkdir -p /src/assets
+RUN /src/download_models
 
 CMD ["python", "-m", "pipenv", "run", "/src/bin/start_server"]

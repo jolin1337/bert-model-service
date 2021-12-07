@@ -10,13 +10,16 @@ class Model:
         return bv_tokenize(text.split())
 
 
-_model = Model()
+_model = None
 
 
 def get_model():
+    global _model
+    if _model is None:
+        _model = Model()
     return _model
 
 
 if __name__ == '__main__':
     model = get_model()
-    print(model.predict('Den här meningen går att delaupp med hjälp av massuppdelning!'))
+    print("Test prediction:", model.predict('Den här meningen går att delaupp med hjälp av massuppdelning!'))

@@ -25,13 +25,16 @@ class Model:
         return self.pipeline(text)
 
 
-_model = Model()
+_model = None
 
 
 def get_model():
+    global _model
+    if _model is None:
+        _model = Model()
     return _model
 
 
 if __name__ == '__main__':
     model = get_model()
-    print(model.predict('Obama bor i vita huset, han kommer flytta därifrån om tre dagar'))
+    print("Test prediction:", model.predict('Obama bor i vita huset, han kommer flytta därifrån om tre dagar'))

@@ -1,5 +1,5 @@
 #!/bin/bash
 
-ROOTPATH="$( dirname $0 )/../../"
+ROOTPATH="$( dirname $0 )/../"
 cd $ROOTPATH
 docker build . -f helm/dockerfiles/Dockerfile.bms -t bolagsverket/tek/aihub/bms:1.0.0

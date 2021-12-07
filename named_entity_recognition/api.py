@@ -29,5 +29,9 @@ class NamedEntityRecognitionResponse(BaseModel):
 def predict(request: TextRequest, model: Model = Depends(get_model)):
     prediction = model.predict(request.text)
     return NamedEntityRecognitionResponse(
-        tokens=[NamedEntityRecognitionEntityResponse(**p) for p in prediction]
+        entites=[NamedEntityRecognitionEntityResponse(**p) for p in prediction]
     )
+
+
+if __name__ == '__main__':
+    get_model()

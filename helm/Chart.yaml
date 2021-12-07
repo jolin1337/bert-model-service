@@ -13,4 +13,4 @@ appVersion: 1.0.0
 dependencies:
 - name: blv-app-template
   version: 0.9.0
-  repository: "@bolagsverket"
+  repository: "bolagsverket"

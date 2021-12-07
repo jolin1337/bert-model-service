@@ -3,10 +3,8 @@ import re
 
 # sweBERT
 # https://github.com/af-ai-center/SweBERT
-from tokenizers import BertWordPieceTokenizer
-from transformers import AutoModel, AutoTokenizer, BertTokenizer, TFBertModel
+from transformers import AutoTokenizer, BertTokenizer
 
-import warnings; warnings.filterwarnings('ignore')
 
 class BVTokenizerException(Exception):
     pass
@@ -18,6 +16,7 @@ opus_bert_tokenizer_ = None
 af_pretrained_model_name_large = 'af-ai-center/bert-large-swedish-uncased'
 kb_pretrained_model_name_ner = 'KB/bert-base-swedish-cased-ner'
 opus_pretrained_model_name_ = 'Helsinki-NLP/opus-mt-sv-sv'
+
 
 def load_models():
     global af_bert_tokenizer_large, kb_bert_tokenizer_ner, opus_bert_tokenizer_
@@ -43,6 +42,7 @@ def pretrained_huggingface_tfbert_encode(text, tokenizer):
     tokens = tokens[1:-1]
     return tokens
 
+
 def pretrained_huggingface_marian_encode(text, tokenizer):
     text_preprocessed = text.lower()
     tokens = tokenizer.tokenize(text_preprocessed)
@@ -50,10 +50,12 @@ def pretrained_huggingface_marian_encode(text, tokenizer):
 
 
 def all_equal(lst):
-    return all(x==lst[0] for x in lst)
+    return all(x == lst[0] for x in lst)
+
 
 def any_equal_input(lst, input):
-    return any(y==input for x in lst for y in x)
+    return any(y == input for x in lst for y in x)
+
 
 def get_equal_elements(lst):
     tranpose_data = list(zip(*lst))
@@ -66,8 +68,8 @@ def get_equal_elements(lst):
         res = get_max_len_element(elements)
         if len(tranpose_data) > 1:
             idx = elements.index(res)
-            next_element = tranpose_data[i+1][idx]
-            if len(next_element) > 0 and next_element[0]=='s':
+            next_element = tranpose_data[i + 1][idx]
+            if len(next_element) > 0 and next_element[0] == 's':
                 res = res + 's'
                 # TODO return list instead.. [res, 's']
 
@@ -111,7 +113,7 @@ def do_weighted_compound(m_word, bert_result):
     else:
         res, diff = get_equal_elements(bert_result)
         n_word = m_word
-        if is_list_of_list(res) == False:
+        if is_list_of_list(res) is False:
             for r in res:
                 n_word = n_word.replace(r, '', 1)
         if any([d in set(['s','en']) for d in diff]):
@@ -125,7 +127,7 @@ def do_weighted_compound(m_word, bert_result):
             n_res = pretrained_encoding(n_word)
             comp = do_weighted_compound(n_word, n_res)
             # elements is equals if result is not list of list
-            if is_list_of_list(comp) == False or all_equal(comp):
+            if is_list_of_list(comp) is False or all_equal(comp):
                 weighted_result = res + comp
             else:
                 # ?? weighted_result = [m_word]
@@ -148,7 +150,7 @@ def do_tokenize(tokens):
 
             # is any comp smaller than a constans, skip last element
             min_comp = 3
-            is_element_small = any(len(x)<min_comp for x in comp[:-1])
+            is_element_small = any(len(x) < min_comp for x in comp[:-1])
             if is_element_small:
                 # The comps is probably not a word
                 # print(comp)
@@ -185,65 +187,65 @@ if __name__ == '__main__':
         return pd.DataFrame(result, columns=cols)
     # # TEST
     test = [
-        # '123mat',
-        # '_och',
-        # '_óch',
-        # 'óch',
-        # 'safaieus',
-        # 'gbeekber',
-        # 'investerades',
-        # 'Norrköping',
-        # 'Karlshamn',
-        # 'marknadsföra',
-        # 'dotterbolag',
+        '123mat',
+        '_och',
+        '_óch',
+        'óch',
+        'safaieus',
+        'gbeekber',
+        'investerades',
+        'Norrköping',
+        'Karlshamn',
+        'marknadsföra',
+        'dotterbolag',
         'taxiverksamhet',
-        # 'taxiverksamhet.',
+        'taxiverksamhet.',
         'fälgförsäljning',
         'konsultverksamhet',
         'konsulttjänst',
         'fastighetsförvaltning',
-        # 'försäljningar',
-        # 'aktiebolag',
-        # 'aktiebolagen',
-        # 'aktiebolagens',
-        # 'aktiebolaget',
-        # 'aktiebolagets',
-        # 'aktiebolags',
-        # 'verksamheter',
-        # 'friskvårdsverksamheter',
-        # 'friskvårdsverksamheten',
-        # 'friskvårdsverksamhetens',
+        'försäljningar',
+        'aktiebolag',
+        'aktiebolagen',
+        'aktiebolagens',
+        'aktiebolaget',
+        'aktiebolagets',
+        'aktiebolags',
+        'verksamheter',
+        'friskvårdsverksamheter',
+        'friskvårdsverksamheten',
+        'friskvårdsverksamhetens',
         'friskvårdsverksamhet',
         'klimatanläggningsreparationer',
         'grossisthandelsverksamhet',
         'grossisthandelsrörelse',
-        # 'projektledning',
-        # 'leasing',
-        # 'hönserirörelse',
-        # 'byggprojektering',
-        # 'kökskran',
-        # 'catering',
-        # 'skoning',
-        # 'motorcykel',
-        # 'felsökning',
-        # 'human resource',
-        # 'resource',
-        # 'byggentreprenadverksamhet',
-        # 'entreprenadverksamhet',
+        'projektledning',
+        'leasing',
+        'hönserirörelse',
+        'byggprojektering',
+        'kökskran',
+        'catering',
+        'skoning',
+        'motorcykel',
+        'felsökning',
+        'human resource',
+        'resource',
+        'byggentreprenadverksamhet',
+        'entreprenadverksamhet',
         'provisionsförsäljning',
         'spannmålsodling',
         'självkostnadsprincip',
         'provisionshandel',
         'affärsutvecklingsverksamheten',
-        # 'affärsutvecklingssystem',
-        # 'väggbeläggningsarbete',
-        # 'naprapatverksamhet',
-        # 'byggentreprenadverksamhet',
-        # 'pulka',
-        # 'konsulentstödd',
-        # 'bildel',
-        # 'bildelar',
-        # 'elinstallationer',
+        'affärsutvecklingssystem',
+        'väggbeläggningsarbete',
+        'naprapatverksamhet',
+        'byggentreprenadverksamhet',
+        'pulka',
+        'konsulentstödd',
+        'bildel',
+        'bildelar',
+        'elinstallationer',
     ]
     view_tokenizers(test)
     # TODO fixa ation ning eri ik

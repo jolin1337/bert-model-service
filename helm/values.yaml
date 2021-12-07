@@ -24,6 +24,11 @@ service:
   port: 8081
   targetPort: 8081
 
+extraEnvs:
+  - name: "PORT"
+    value: "8081"
+
+
 
 blvEnvMode: dev
 blvEnvModeNr: dev01
