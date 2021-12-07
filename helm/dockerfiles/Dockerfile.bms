@@ -1,8 +1,10 @@
 FROM python:3.9
+USER root
+COPY . /src/
+RUN chown -r 1000:1000 /src
 USER 1000
 WORKDIR /src
 
-COPY . /src/
 ENV HOME=/src
 RUN pip install --user pipenv
 RUN python -m pipenv install
