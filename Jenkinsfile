@@ -53,6 +53,7 @@ pipeline {
         stage("Prepare") {
             steps {
                 script {
+                    prepare = load 'prepare.groovy'
                     cicd_buildstate = prepare()
                 }
             }
