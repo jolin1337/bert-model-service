@@ -1,0 +1,5 @@
+imagename: bolagsverket/tek/aihub/bms
+version: "1.0.0"
+namespace: bert-embeddings-api
+clustertags: ai-backend
+dryrun: false
