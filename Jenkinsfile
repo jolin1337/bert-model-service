@@ -1,5 +1,5 @@
 #!groovy
-@Library(["blv-global-jenkins-cicd-shared-library"]) _
+@Library(["blv-global-jenkins-cicd-shared-library@feature/bugfix-tag"]) _
 
 pipeline {
     agent {
@@ -53,7 +53,7 @@ pipeline {
         stage("Prepare") {
             steps {
                 script {
-                    cicd_buildstate = ()
+                    cicd_buildstate = cicd_prepare()
                 }
             }
         }
