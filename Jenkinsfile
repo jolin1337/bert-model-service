@@ -93,7 +93,8 @@ pipeline {
                 stage('Sonar') {
                     steps {
                         script {
-                            cicd_run_sonar(cicd_buildstate)
+                            // cicd_run_sonar(cicd_buildstate)
+                            println("Skipping sonar linter...")
                         }
                     }
                 }
